@@ -4,6 +4,8 @@ Cada ferramenta encapsula uma consulta específica aos dados da loja.
 """
 
 import json
+import unicodedata
+
 import pandas as pd
 from langchain_core.tools import tool
 from data_loader import load_all_data, load_store_policies
@@ -11,6 +13,15 @@ from data_loader import load_all_data, load_store_policies
 # Carregar dados uma vez na inicialização
 DATA = load_all_data()
 STORE_POLICIES = load_store_policies()
+
+
+def _normalize(text) -> str:
+    """Normaliza texto para busca: minúsculas e sem acentos.
+    Permite que o cliente encontre produtos mesmo digitando sem acento
+    (ex: 'violao' casa com 'Violão'), como é comum no WhatsApp.
+    """
+    normalized = unicodedata.normalize("NFKD", str(text).lower())
+    return "".join(c for c in normalized if not unicodedata.combining(c))
 
 
 @tool
@@ -22,13 +33,13 @@ def search_products(query: str) -> str:
     'ukulele', 'teclado', 'bateria', 'baixo') ou característica (ex: 'nylon', 'elétrico').
     """
     df = DATA["products"]
-    query_lower = query.lower()
+    query_norm = _normalize(query)
 
-    # Buscar em nome, descrição e categoria
+    # Buscar em nome, descrição e categoria (ignorando acentos e maiúsculas)
     mask = (
-        df["name"].str.lower().str.contains(query_lower, na=False)
-        | df["description"].str.lower().str.contains(query_lower, na=False)
-        | df["name_category"].str.lower().str.contains(query_lower, na=False)
+        df["name"].map(_normalize).str.contains(query_norm, na=False, regex=False)
+        | df["description"].map(_normalize).str.contains(query_norm, na=False, regex=False)
+        | df["name_category"].map(_normalize).str.contains(query_norm, na=False, regex=False)
     )
 
     results = df[mask & (df["status"] != "discontinued")]
@@ -155,11 +166,12 @@ def track_order(identifier: str) -> str:
         order_id = int(identifier_lower)
         results = df[df["order_id"] == order_id]
     except ValueError:
-        # Buscar por tracking code, nome ou email
+        # Buscar por tracking code, nome ou email (ignorando acentos e maiúsculas)
+        query_norm = _normalize(identifier_lower)
         results = df[
-            df["tracking_code"].str.lower().str.contains(identifier_lower, na=False)
-            | df["name"].str.lower().str.contains(identifier_lower, na=False)
-            | df["email"].str.lower().str.contains(identifier_lower, na=False)
+            df["tracking_code"].map(_normalize).str.contains(query_norm, na=False, regex=False)
+            | df["name"].map(_normalize).str.contains(query_norm, na=False, regex=False)
+            | df["email"].map(_normalize).str.contains(query_norm, na=False, regex=False)
         ]
 
     if results.empty:
@@ -210,12 +222,12 @@ def lookup_customer(identifier: str) -> str:
     Use quando precisar identificar um cliente ou verificar seus dados cadastrais.
     """
     df = DATA["customers"]
-    identifier_lower = identifier.lower().strip()
+    query_norm = _normalize(identifier.strip())
 
     results = df[
-        df["name"].str.lower().str.contains(identifier_lower, na=False)
-        | df["email"].str.lower().str.contains(identifier_lower, na=False)
-        | df["phone"].str.contains(identifier, na=False)
+        df["name"].map(_normalize).str.contains(query_norm, na=False, regex=False)
+        | df["email"].map(_normalize).str.contains(query_norm, na=False, regex=False)
+        | df["phone"].str.contains(identifier.strip(), na=False, regex=False)
     ]
 
     if results.empty:
