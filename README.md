@@ -1,5 +1,10 @@
 # 🎵 Empório da Música - Customer Service Agent
 
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-1.x-1C3C3C?logo=langchain&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google%20Gemini-3.5%20Flash-8E75B2?logo=googlegemini&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
+
 Intelligent conversational agent for the customer service of **Empório da Música**, a musical instrument store located in Campo Grande/MS, Brazil. The agent simulates a WhatsApp-style service channel, answering questions about products, orders, promotions, and store policies.
 
 > **Note on language:** The documentation and code comments are in English, but the agent itself talks to customers in **Brazilian Portuguese** on purpose — it serves a Brazilian store, so the persona, the chat dialogues in `examples/`, and the data remain in Portuguese.
@@ -178,6 +183,7 @@ emporio-da-musica-agent/
 ├── requirements.txt          # Python dependencies
 ├── .env.example              # Environment variables template
 ├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
