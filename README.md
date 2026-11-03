@@ -1,4 +1,4 @@
-# 🎵 Empório da Música — Agente de Atendimento ao Cliente
+# 🎵 Empório da Música - Agente de Atendimento ao Cliente
 
 Agente conversacional inteligente para atendimento ao cliente do **Empório da Música**, uma loja de instrumentos musicais em Campo Grande/MS. O agente simula um atendimento via WhatsApp, respondendo perguntas sobre produtos, pedidos, promoções e políticas da loja.
 
