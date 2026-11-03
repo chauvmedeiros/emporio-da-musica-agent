@@ -1,6 +1,6 @@
 """
-Agente de atendimento ao cliente do Empório da Música.
-Utiliza LangChain + Google Gemini com abordagem ReAct Agent.
+Customer service agent for Empório da Música.
+Uses LangChain + Google Gemini with a ReAct agent approach.
 """
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -50,9 +50,9 @@ Se o cliente perguntar sobre assuntos que não são relacionados à loja ou a in
 
 
 def _extract_text(message) -> str:
-    """Extrai o texto da resposta do agente.
-    Modelos Gemini 3.x retornam o conteúdo como lista de blocos (texto +
-    raciocínio); aqui pegamos apenas os blocos de texto voltados ao cliente.
+    """Extract the text from the agent's response.
+    Gemini 3.x models return the content as a list of blocks (text +
+    reasoning); here we keep only the text blocks meant for the customer.
     """
     content = message.content
     if isinstance(content, str):
@@ -69,12 +69,12 @@ def _extract_text(message) -> str:
 
 
 def create_agent_executor(model_name: str = "gemini-3.5-flash"):
-    """Cria e retorna o agente configurado (grafo ReAct do LangChain)."""
+    """Create and return the configured agent (LangChain ReAct graph)."""
     llm = ChatGoogleGenerativeAI(
         model=model_name,
         temperature=0.3,
-        timeout=30,       # evita travar indefinidamente se a API demorar
-        max_retries=2,    # limita retentativas quando a API está sobrecarregada (503)
+        timeout=30,       # avoid hanging indefinitely if the API is slow
+        max_retries=2,    # limit retries when the API is overloaded (503)
     )
 
     return create_agent(
@@ -85,23 +85,23 @@ def create_agent_executor(model_name: str = "gemini-3.5-flash"):
 
 
 class ChatSession:
-    """Gerencia uma sessão de chat com histórico de conversação."""
+    """Manages a chat session with conversation history."""
 
     def __init__(self, model_name: str = "gemini-3.5-flash"):
         self.agent = create_agent_executor(model_name)
         self.chat_history: list = []
 
     def send_message(self, message: str) -> str:
-        """Envia uma mensagem e retorna a resposta do agente."""
+        """Send a message and return the agent's response."""
         messages = self.chat_history + [HumanMessage(content=message)]
         result = self.agent.invoke({"messages": messages})
 
-        # Mantém o histórico completo (incluindo chamadas de ferramenta),
-        # necessário para o tool calling multi-turno dos modelos Gemini 3.x
+        # Keep the full history (including tool calls), required for the
+        # multi-turn tool calling of Gemini 3.x models
         self.chat_history = result["messages"]
 
         return _extract_text(result["messages"][-1])
 
     def reset(self):
-        """Limpa o histórico da conversa."""
+        """Clear the conversation history."""
         self.chat_history = []

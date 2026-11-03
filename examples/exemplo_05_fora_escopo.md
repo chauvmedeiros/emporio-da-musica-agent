@@ -1,6 +1,8 @@
-# Exemplo 5 - Perguntas Fora do Escopo
+# Example 5 - Out-of-Scope Questions
 
-Cenário: Agente lidando com perguntas não relacionadas à loja.
+**Scenario:** The agent handling questions unrelated to the store.
+
+> _The dialogue below is in Brazilian Portuguese, matching the agent's persona (the store is Brazilian)._
 
 ---
 

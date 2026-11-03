@@ -1,6 +1,8 @@
-# Exemplo 1 - Busca e Recomendação de Produtos
+# Example 1 - Product Search and Recommendation
 
-Cenário: Cliente iniciante buscando um violão para começar a aprender.
+**Scenario:** A beginner customer looking for a guitar to start learning.
+
+> _The dialogue below is in Brazilian Portuguese, matching the agent's persona (the store is Brazilian)._
 
 ---
 

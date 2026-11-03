@@ -1,6 +1,8 @@
-# Exemplo 3 - Promoções Ativas
+# Example 3 - Active Promotions
 
-Cenário: Cliente perguntando sobre ofertas disponíveis.
+**Scenario:** A customer asking about available offers.
+
+> _The dialogue below is in Brazilian Portuguese, matching the agent's persona (the store is Brazilian)._
 
 ---
 

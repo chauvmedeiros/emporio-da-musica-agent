@@ -1,6 +1,8 @@
-# Exemplo 4 - Políticas da Loja
+# Example 4 - Store Policies
 
-Cenário: Cliente com dúvidas sobre trocas, devoluções e frete.
+**Scenario:** A customer with questions about exchanges, returns, and shipping.
+
+> _The dialogue below is in Brazilian Portuguese, matching the agent's persona (the store is Brazilian)._
 
 ---
 

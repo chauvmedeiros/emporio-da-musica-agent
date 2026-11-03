@@ -1,23 +1,23 @@
 """
-Interface CLI para o agente de atendimento do Empório da Música.
-Simula uma conversa por mensagem de texto no terminal.
+CLI interface for the Empório da Música customer service agent.
+Simulates a text-based message conversation in the terminal.
 """
 
 import os
 import sys
 from dotenv import load_dotenv
 
-# Garantir saída UTF-8 no terminal (Windows usa cp1252 por padrão e quebra com emojis)
+# Force UTF-8 output in the terminal (Windows defaults to cp1252 and breaks on emojis)
 for stream in (sys.stdout, sys.stderr):
     try:
         stream.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
 
-# Carregar variáveis de ambiente
+# Load environment variables
 load_dotenv()
 
-# Verificar API key
+# Check the API key
 if not os.getenv("GOOGLE_API_KEY"):
     print("❌ Erro: GOOGLE_API_KEY não configurada!")
     print("   Crie um arquivo .env com: GOOGLE_API_KEY=sua_chave_aqui")

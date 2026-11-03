@@ -1,6 +1,8 @@
-# Exemplo 2 - Rastreamento de Pedido
+# Example 2 - Order Tracking
 
-Cenário: Cliente quer saber o status de seu pedido.
+**Scenario:** A customer wants to know the status of their order.
+
+> _The dialogue below is in Brazilian Portuguese, matching the agent's persona (the store is Brazilian)._
 
 ---
 

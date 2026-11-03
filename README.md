@@ -1,68 +1,70 @@
-# 🎵 Empório da Música - Agente de Atendimento ao Cliente
+# 🎵 Empório da Música - Customer Service Agent
 
-Agente conversacional inteligente para atendimento ao cliente do **Empório da Música**, uma loja de instrumentos musicais em Campo Grande/MS. O agente simula um atendimento via WhatsApp, respondendo perguntas sobre produtos, pedidos, promoções e políticas da loja.
+Intelligent conversational agent for the customer service of **Empório da Música**, a musical instrument store located in Campo Grande/MS, Brazil. The agent simulates a WhatsApp-style service channel, answering questions about products, orders, promotions, and store policies.
 
-## 📋 Índice
+> **Note on language:** The documentation and code comments are in English, but the agent itself talks to customers in **Brazilian Portuguese** on purpose — it serves a Brazilian store, so the persona, the chat dialogues in `examples/`, and the data remain in Portuguese.
 
-- [Como Executar](#-como-executar)
-- [Arquitetura](#-arquitetura)
-- [Decisões Técnicas](#-decisões-técnicas)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Exemplos de Interação](#-exemplos-de-interação)
-- [Limitações Conhecidas](#-limitações-conhecidas)
-- [Uso de IA no Desenvolvimento](#-uso-de-ia-no-desenvolvimento)
+## 📋 Table of Contents
 
-## 🚀 Como Executar
+- [How to Run](#-how-to-run)
+- [Architecture](#-architecture)
+- [Technical Decisions](#-technical-decisions)
+- [Project Structure](#-project-structure)
+- [Interaction Examples](#-interaction-examples)
+- [Known Limitations](#-known-limitations)
+- [AI Usage in Development](#-ai-usage-in-development)
 
-### Pré-requisitos
+## 🚀 How to Run
+
+### Prerequisites
 
 - Python 3.10+
-- Chave de API do Google Gemini (gratuita)
+- Google Gemini API key (free)
 
-### Passo a passo
+### Step by Step
 
-1. **Clone o repositório:**
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/chauvmedeiros/emporio-da-musica-agent.git
 cd emporio-da-musica-agent
 ```
 
-2. **Crie e ative um ambiente virtual:**
+2. **Create and activate a virtual environment:**
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 # .venv\Scripts\activate   # Windows
 ```
 
-3. **Instale as dependências:**
+3. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Configure a API key:**
+4. **Configure the API key:**
 
-Obtenha uma chave gratuita em [Google AI Studio](https://aistudio.google.com/apikey) e crie o arquivo `.env`:
+Get a free key at [Google AI Studio](https://aistudio.google.com/apikey) and create the `.env` file:
 ```bash
 cp .env.example .env
-# Edite o .env e coloque sua chave
+# Edit .env and paste your key
 ```
 
-5. **Execute:**
+5. **Run:**
 ```bash
 python main.py
 ```
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
 │                    CLI (main.py)                 │
-│              Interface do Usuário                │
+│                 User Interface                   │
 └──────────────────────┬──────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────┐
 │              ChatSession (agent.py)              │
-│         Histórico de Conversa (memória)          │
+│               Conversation History               │
 └──────────────────────┬──────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────┐
@@ -71,178 +73,178 @@ python main.py
 └──────────┬───────┬───────┬───────┬──────────────┘
            │       │       │       │
      ┌─────▼──┐ ┌──▼───┐ ┌▼─────┐ ┌▼──────────┐
-     │Produtos│ │Pedidos│ │Promos│ │ Políticas  │
+     │Products│ │Orders │ │Promos│ │ Policies   │
      │ (CSV)  │ │ (CSV) │ │(CSV) │ │  (PDF)     │
      └────────┘ └──────┘ └──────┘ └────────────┘
 ```
 
-O agente utiliza a abordagem **ReAct** (Reasoning + Acting): a cada mensagem do cliente, o modelo decide quais ferramentas acionar, analisa os resultados e compõe uma resposta contextualizada.
+The agent uses the **ReAct** approach (Reasoning + Acting): on each customer message, the model decides which tools to call, analyzes the results, and composes a contextualized answer.
 
-## 🔧 Decisões Técnicas
+## 🔧 Technical Decisions
 
-### 1. Framework: LangChain com Tool Calling
+### 1. Framework: LangChain with Tool Calling
 
-**Escolha:** LangChain 1.x (`create_agent`)
+**Choice:** LangChain 1.x (`create_agent`)
 
-**Justificativa:** O `create_agent` do LangChain oferece uma abstração madura para construir agentes com ferramentas, com suporte nativo a tool calling (function calling) do Gemini. Isso permite que o modelo decida autonomamente quais ferramentas acionar com base na pergunta do cliente, sem necessidade de lógica condicional manual. Por baixo dos panos ele monta um agente ReAct sobre o LangGraph, o que mantém o código simples para este caso de uso (um agente de atendimento com ferramentas de consulta) e já deixa o caminho aberto para fluxos com estados mais complexos no futuro.
+**Rationale:** LangChain's `create_agent` offers a mature abstraction for building agents with tools, with native support for Gemini's tool calling (function calling). This lets the model autonomously decide which tools to call based on the customer's question, without manual conditional logic. Under the hood it builds a ReAct agent on top of LangGraph, which keeps the code simple for this use case (a customer service agent with lookup tools) while leaving the door open for more complex stateful flows in the future.
 
-**Alternativas consideradas:**
-- **LangGraph "na mão":** Montar o grafo manualmente dá mais controle sobre estados e roteamento condicional, mas adiciona complexidade desnecessária para este caso
-- **Implementação manual com Gemini SDK:** Menor abstração, mais controle, mas requer reimplementar o loop ReAct e a gestão de ferramentas
-- **RAG puro:** Limitado para consultas estruturadas (CSV); melhor para documentos longos não estruturados
+**Alternatives considered:**
+- **Hand-rolled LangGraph:** Building the graph manually gives more control over state and conditional routing, but adds unnecessary complexity for this case
+- **Manual implementation with the Gemini SDK:** Lower abstraction, more control, but requires reimplementing the ReAct loop and tool management
+- **Pure RAG:** Limited for structured queries (CSV); better suited for long, unstructured documents
 
-### 2. Modelo: Google Gemini 3.5 Flash
+### 2. Model: Google Gemini 3.5 Flash
 
-**Escolha:** `gemini-3.5-flash` via Google AI Studio (tier gratuito)
+**Choice:** `gemini-3.5-flash` via Google AI Studio (free tier)
 
-**Justificativa:** Oferece excelente relação custo-performance para agentes conversacionais. Suporta tool calling nativo (fundamental para a abordagem ReAct), compreende bem português brasileiro, e o tier gratuito é suficiente para desenvolvimento e demonstração. A baixa latência do Flash é ideal para simulação de atendimento em tempo real.
+**Rationale:** It offers an excellent cost/performance ratio for conversational agents. It supports native tool calling (essential for the ReAct approach), understands Brazilian Portuguese well, and the free tier is enough for development and demonstration. Flash's low latency is ideal for simulating real-time service.
 
-**Alternativas consideradas:**
-- **GPT-4o (OpenAI):** Excelente qualidade, mas custo por token significativamente maior
-- **Claude (Anthropic):** Ótimo em português e raciocínio, mas sem tier gratuito para API
-- **Modelos open-source (Llama, Mistral):** Requerem infraestrutura de hosting e têm desempenho inferior em tool calling
+**Alternatives considered:**
+- **GPT-4o (OpenAI):** Excellent quality, but a significantly higher cost per token
+- **Claude (Anthropic):** Great at Portuguese and reasoning, but no free API tier
+- **Open-source models (Llama, Mistral):** Require hosting infrastructure and have weaker tool-calling performance
 
-### 3. Abordagem: ReAct Agent com Tools
+### 3. Approach: ReAct Agent with Tools
 
-**Escolha:** Agente ReAct com 6 ferramentas especializadas
+**Choice:** ReAct agent with 6 specialized tools
 
-**Justificativa:** Cada ferramenta encapsula uma consulta específica aos dados da loja:
-- `search_products` - Busca por nome, categoria ou descrição
-- `check_product_by_id` - Detalhes de um produto específico
-- `check_active_promotions` - Lista promoções vigentes
-- `track_order` - Rastreamento por ID, código, nome ou e-mail
-- `lookup_customer` - Busca dados cadastrais do cliente
-- `consult_store_policies` - Consulta o PDF de políticas
+**Rationale:** Each tool encapsulates a specific query over the store's data:
+- `search_products` - Search by name, category, or description
+- `check_product_by_id` - Details of a specific product
+- `check_active_promotions` - List active promotions
+- `track_order` - Track by ID, code, name, or e-mail
+- `lookup_customer` - Look up customer records
+- `consult_store_policies` - Query the policies PDF
 
-Esta separação permite que o modelo decida quais fontes consultar com base no contexto, podendo combinar múltiplas ferramentas em uma única resposta (ex: buscar produto + verificar promoção).
+This separation lets the model decide which sources to consult based on context, and it can combine multiple tools in a single answer (e.g., search for a product + check a promotion).
 
-**Alternativas consideradas:**
-- **SQL Agent:** Converter CSVs em banco SQLite e usar queries SQL. Mais flexível para consultas complexas, mas adiciona camada de complexidade e risco de SQL injection/erros de sintaxe
-- **RAG com vector store:** Ideal para grandes volumes de texto, mas os CSVs são estruturados e pequenos o suficiente para consulta direta com Pandas
+**Alternatives considered:**
+- **SQL Agent:** Convert the CSVs into a SQLite database and use SQL queries. More flexible for complex queries, but adds a layer of complexity and the risk of SQL injection/syntax errors
+- **RAG with a vector store:** Ideal for large volumes of text, but the CSVs are structured and small enough for direct querying with Pandas
 
 ### 4. Interface: CLI (Command Line Interface)
 
-**Escolha:** Interface de terminal com loop de conversação
+**Choice:** Terminal interface with a conversation loop
 
-**Justificativa:** A CLI é a interface mais direta para demonstrar a funcionalidade do agente sem dependências adicionais de frontend. O foco do desafio está na lógica do agente, não na interface. O formato simula uma conversa por mensagem, alinhado com o cenário WhatsApp proposto.
+**Rationale:** The CLI is the most direct interface to demonstrate the agent's functionality without extra frontend dependencies. The focus of the challenge is on the agent's logic, not the interface. The format simulates a message-based conversation, aligned with the proposed WhatsApp scenario.
 
-**Alternativas consideradas:**
-- **API REST (FastAPI/Flask):** Mais profissional para produção, mas adiciona complexidade sem agregar à avaliação do agente
-- **Streamlit/Gradio:** Interface visual rápida, mas mascara a interação real com o agente
-- **Jupyter Notebook:** Bom para demonstração, mas menos reprodutível
+**Alternatives considered:**
+- **REST API (FastAPI/Flask):** More production-ready, but adds complexity without contributing to evaluating the agent
+- **Streamlit/Gradio:** Quick visual interface, but masks the real interaction with the agent
+- **Jupyter Notebook:** Good for demos, but less reproducible
 
-### 5. Histórico de Conversação: Em Memória
+### 5. Conversation History: In-Memory
 
-**Escolha:** Lista de mensagens (`HumanMessage`/`AIMessage`) em memória
+**Choice:** In-memory message list (`HumanMessage`/`AIMessage`)
 
-**Justificativa:** Para uma sessão de atendimento via mensagem, o histórico em memória é suficiente. O contexto do atendimento é de curta duração (uma sessão de chat), não sendo necessário persistência entre execuções. A implementação é simples e leve.
+**Rationale:** For a message-based service session, in-memory history is enough. The service context is short-lived (a single chat session), so persistence across runs is not needed. The implementation is simple and lightweight.
 
-**Alternativas consideradas:**
-- **SQLite/Redis:** Necessário para produção com múltiplos atendentes, mas overkill para demonstração
-- **ConversationBufferWindowMemory:** Útil para limitar tokens em conversas longas, mas o Gemini Flash tem janela de contexto generosa (1M tokens)
+**Alternatives considered:**
+- **SQLite/Redis:** Needed for production with multiple agents, but overkill for a demo
+- **ConversationBufferWindowMemory:** Useful for limiting tokens in long conversations, but Gemini Flash has a generous context window (1M tokens)
 
-### 6. Tratamento dos Dados: Pandas + Texto Direto
+### 6. Data Handling: Pandas + Plain Text
 
-**Escolha:** CSVs carregados em DataFrames Pandas; PDF extraído como texto
+**Choice:** CSVs loaded into Pandas DataFrames; PDF extracted as text
 
-**Justificativa:** Os dados são pequenos (64 produtos, 50 clientes, 20 pedidos) e estruturados. Pandas permite filtros eficientes e joins entre tabelas sem necessidade de banco de dados. O PDF de políticas (8 páginas) é pequeno o suficiente para ser passado integralmente ao modelo quando necessário, dispensando chunking e vector store.
+**Rationale:** The data is small (64 products, 50 customers, 20 orders) and structured. Pandas allows efficient filters and joins across tables without needing a database. The policies PDF (8 pages) is small enough to be passed in full to the model when needed, avoiding chunking and a vector store.
 
-**Alternativas consideradas:**
-- **SQLite:** Mais robusto para queries complexas, mas adiciona etapa de ETL
-- **Vector store (FAISS/Chroma):** Essencial para grandes volumes de documentos, mas overkill para 8 páginas de políticas
+**Alternatives considered:**
+- **SQLite:** More robust for complex queries, but adds an ETL step
+- **Vector store (FAISS/Chroma):** Essential for large volumes of documents, but overkill for 8 pages of policies
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 emporio-da-musica-agent/
 ├── data/
-│   ├── products.csv          # Catálogo de produtos
-│   ├── categories.csv        # Categorias de instrumentos
-│   ├── customers.csv         # Base de clientes
-│   ├── orders.csv            # Pedidos
-│   ├── order_items.csv       # Itens dos pedidos
-│   ├── promotions.csv        # Promoções
-│   └── politicas_da_loja.pdf # Políticas da loja
+│   ├── products.csv          # Product catalog
+│   ├── categories.csv        # Instrument categories
+│   ├── customers.csv         # Customer base
+│   ├── orders.csv            # Orders
+│   ├── order_items.csv       # Order items
+│   ├── promotions.csv        # Promotions
+│   └── politicas_da_loja.pdf # Store policies
 ├── examples/
 │   ├── exemplo_01_produtos.md
 │   ├── exemplo_02_pedido.md
 │   ├── exemplo_03_promocoes.md
 │   ├── exemplo_04_politicas.md
 │   └── exemplo_05_fora_escopo.md
-├── agent.py                  # Configuração do agente e sessão de chat
-├── data_loader.py            # Carregamento e preparação dos dados
-├── tools.py                  # Ferramentas do agente
-├── main.py                   # Interface CLI
-├── requirements.txt          # Dependências Python
-├── .env.example              # Template de variáveis de ambiente
+├── agent.py                  # Agent configuration and chat session
+├── data_loader.py            # Data loading and preparation
+├── tools.py                  # Agent tools
+├── main.py                   # CLI interface
+├── requirements.txt          # Python dependencies
+├── .env.example              # Environment variables template
 ├── .gitignore
 └── README.md
 ```
 
-## 💬 Exemplos de Interação
+## 💬 Interaction Examples
 
-Os exemplos completos estão na pasta `examples/`. Resumo dos cenários cobertos:
+The full examples are in the `examples/` folder (dialogues in Portuguese, with an English summary at the top of each file). Summary of the covered scenarios:
 
-1. **Busca e recomendação de produtos** - Cliente procurando um violão para iniciante
-2. **Rastreamento de pedido** - Cliente verificando status de entrega
-3. **Promoções ativas** - Cliente perguntando sobre ofertas e descontos
-4. **Políticas da loja** - Cliente com dúvidas sobre troca/devolução e frete
-5. **Fora do escopo** - Agente lidando com perguntas não relacionadas à loja
+1. **Product search and recommendation** - Customer looking for a beginner guitar
+2. **Order tracking** - Customer checking delivery status
+3. **Active promotions** - Customer asking about offers and discounts
+4. **Store policies** - Customer with questions about returns/exchanges and shipping
+5. **Out of scope** - Agent handling questions unrelated to the store
 
-## ⚠️ Limitações Conhecidas
+## ⚠️ Known Limitations
 
-1. **Sem persistência entre sessões:** O histórico de conversa é perdido ao encerrar o programa. Em produção, seria necessário um banco de dados para manter contexto entre sessões.
+1. **No persistence across sessions:** The conversation history is lost when the program exits. In production, a database would be needed to keep context across sessions.
 
-2. **Dados estáticos:** Os CSVs são carregados uma vez na inicialização. Alterações nos dados requerem reiniciar o agente. Em produção, seria conectado a um banco de dados ou API em tempo real.
+2. **Static data:** The CSVs are loaded once at startup. Changing the data requires restarting the agent. In production, it would be connected to a database or a real-time API.
 
-3. **Sem autenticação de cliente:** O agente não verifica a identidade do cliente antes de mostrar informações de pedidos. Em produção, seria necessário um fluxo de verificação (ex: CPF + e-mail).
+3. **No customer authentication:** The agent does not verify the customer's identity before showing order information. In production, a verification flow would be needed (e.g., CPF + e-mail).
 
-4. **Limite do tier gratuito:** O Google Gemini gratuito tem limites de requisições por minuto. Para uso em produção, seria necessário um plano pago.
+4. **Free tier limit:** The free Google Gemini tier has per-minute request limits (around 5 requests/minute). Under heavy, rapid testing it may return a rate-limit error; for production use a paid plan would be required.
 
-5. **Políticas como texto integral:** O PDF de políticas é passado integralmente ao modelo a cada consulta. Com documentos maiores, seria necessário implementar RAG com chunking e vector store.
+5. **Policies as full text:** The policies PDF is passed in full to the model on every query. With larger documents, RAG with chunking and a vector store would be needed.
 
-6. **Sem integração real com WhatsApp:** O agente simula o atendimento via CLI. A integração com WhatsApp Business API requer infraestrutura adicional (webhook, servidor, certificação Meta).
+6. **No real WhatsApp integration:** The agent simulates service via the CLI. Integration with the WhatsApp Business API requires additional infrastructure (webhook, server, Meta certification).
 
-## 🚀 O que Faria com Mais Tempo
+## 🚀 What I Would Do With More Time
 
-Se houvesse mais tempo disponível, o próximo passo natural seria evoluir este agente para uma **plataforma completa de atendimento ao cliente** - um sistema web onde os atendentes não precisariam usar o WhatsApp Web diretamente. A visão inclui:
+With more time available, the natural next step would be to evolve this agent into a **full customer service platform** - a web system where agents would not need to use WhatsApp Web directly. The vision includes:
 
-### Plataforma de Gestão de Atendimentos
+### Service Management Platform
 
-- **Painel web para atendentes:** Interface própria para gerenciar conversas sem depender do WhatsApp Web (que consome muita memória e limita o controle). Múltiplos atendentes poderiam acessar o sistema simultaneamente com suas próprias credenciais.
+- **Web panel for agents:** A dedicated interface to manage conversations without relying on WhatsApp Web (which consumes a lot of memory and limits control). Multiple agents could access the system simultaneously with their own credentials.
 
-- **Handoff inteligente IA ↔ Humano:** O atendente poderia, a qualquer momento, assumir uma conversa que a IA estava conduzindo ("stop IA → atendimento humano"), e depois devolver para a IA continuar. A IA também sinalizaria automaticamente quando detectasse que o cliente precisa de atendimento humano (reclamações, situações sensíveis, perguntas muito fora do escopo).
+- **Smart AI ↔ Human handoff:** An agent could, at any moment, take over a conversation the AI was handling ("stop AI → human service"), and then hand it back to the AI to continue. The AI would also automatically flag when it detected that the customer needs a human (complaints, sensitive situations, questions far out of scope).
 
-- **Catálogo visual de produtos:** Galeria com fotos e vídeos dos instrumentos, integrada às ferramentas do agente para enviar mídia durante o atendimento.
+- **Visual product catalog:** A gallery with photos and videos of the instruments, integrated with the agent's tools to send media during the conversation.
 
-- **Relatórios e analytics:** Dashboard com métricas de atendimento - tempo médio de resposta, taxa de resolução por IA vs. humano, produtos mais consultados, horários de pico.
+- **Reports and analytics:** A dashboard with service metrics - average response time, AI vs. human resolution rate, most-consulted products, peak hours.
 
-- **Envio de mensagens em massa:** Campanhas segmentadas para clientes cadastrados (promoções, novidades, restock de produtos populares).
+- **Bulk messaging:** Segmented campaigns for registered customers (promotions, news, restocks of popular products).
 
-- **CRM integrado:** Histórico completo de cada cliente - todas as conversas, compras, preferências - para atendimento personalizado e follow-up proativo.
+- **Integrated CRM:** A complete history for each customer - all conversations, purchases, preferences - for personalized service and proactive follow-up.
 
-### Stack que Utilizaria
+### Stack I Would Use
 
-Para essa evolução, a stack que escolheria com base na minha experiência:
-- **Frontend:** React/Next.js ou Lovable para prototipação rápida
-- **Backend:** Supabase (PostgreSQL + Auth + Realtime) para dados e autenticação em tempo real
-- **Automações:** n8n para orquestração de workflows (webhooks do WhatsApp, notificações, relatórios agendados)
-- **WhatsApp:** Integração via WhatsApp Business API oficial da Meta com webhook
-- **IA:** Mesmo agente LangChain, adaptado para processar mensagens do webhook e responder via API
+For this evolution, the stack I would choose based on my experience:
+- **Frontend:** React/Next.js or Lovable for fast prototyping
+- **Backend:** Supabase (PostgreSQL + Auth + Realtime) for real-time data and authentication
+- **Automation:** n8n for workflow orchestration (WhatsApp webhooks, notifications, scheduled reports)
+- **WhatsApp:** Integration via Meta's official WhatsApp Business API with a webhook
+- **AI:** The same LangChain agent, adapted to process webhook messages and reply via API
 
-Essa visão reflete o tipo de sistema que já construo profissionalmente - agentes de IA integrados com WhatsApp Business API, dashboards de gestão e automações com n8n - e seria a evolução natural deste protótipo para um produto real.
+This vision reflects the kind of system I already build professionally - AI agents integrated with the WhatsApp Business API, management dashboards, and n8n automations - and it would be the natural evolution of this prototype into a real product.
 
-## 🤖 Uso de IA no Desenvolvimento
+## 🤖 AI Usage in Development
 
-Transparência é importante: este projeto foi desenvolvido em parceria com **Claude (Anthropic)**, utilizado como assistente de desenvolvimento ao longo de todo o processo. Especificamente, a IA auxiliou em:
+Transparency matters: this project was developed in partnership with **Claude (Anthropic)**, used as a development assistant throughout the process. Specifically, the AI helped with:
 
-- **Arquitetura:** Discussão e validação da estrutura do projeto, escolha de padrões (ReAct, tool calling) e definição do fluxo do agente
-- **Implementação:** Geração do código-base dos módulos, com iterações de refinamento
-- **Documentação:** Elaboração do README, exemplos de interação e justificativas técnicas
-- **Revisão:** Code review, identificação de edge cases e melhorias na robustez das ferramentas
+- **Architecture:** Discussing and validating the project structure, choosing patterns (ReAct, tool calling), and defining the agent flow
+- **Implementation:** Generating the base code for the modules, with refinement iterations
+- **Documentation:** Writing the README, interaction examples, and technical rationale
+- **Review:** Code review, edge-case identification, and improvements to the robustness of the tools
 
-**O que é meu neste projeto:**
-- As **decisões de arquitetura** foram baseadas na minha experiência construindo agentes de IA com LangChain, WhatsApp Business API e n8n profissionalmente
-- A **escolha do Gemini 3.5 Flash** como modelo, a abordagem de dados com Pandas (sem vector store para dados pequenos) e o design da persona "Mel" refletem decisões pragmáticas que tomo no dia a dia
-- A **visão de produto** (seção "O que faria com mais tempo") vem diretamente da minha atuação profissional com sistemas de atendimento via WhatsApp
-- Todo o código foi **revisado, compreendido e validado** - não aceitei output da IA sem entender o que cada parte faz e por quê
+**What is mine in this project:**
+- The **architecture decisions** were based on my experience building AI agents with LangChain, the WhatsApp Business API, and n8n professionally
+- The **choice of Gemini 3.5 Flash** as the model, the data approach with Pandas (no vector store for small data), and the design of the "Mel" persona reflect pragmatic decisions I make day to day
+- The **product vision** (the "What I Would Do With More Time" section) comes directly from my professional work with WhatsApp-based service systems
+- All the code was **reviewed, understood, and validated** - I did not accept AI output without understanding what each part does and why

@@ -1,6 +1,6 @@
 """
-Módulo responsável por carregar e preparar os dados do Empório da Música.
-Carrega CSVs em DataFrames e extrai texto das políticas da loja (PDF).
+Module responsible for loading and preparing the Empório da Música data.
+Loads CSVs into DataFrames and extracts the store policies text (PDF).
 """
 
 import os
@@ -11,13 +11,13 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
 def load_csv(filename: str) -> pd.DataFrame:
-    """Carrega um arquivo CSV do diretório data/."""
+    """Load a CSV file from the data/ directory."""
     filepath = os.path.join(DATA_DIR, filename)
     return pd.read_csv(filepath)
 
 
 def load_all_data() -> dict[str, pd.DataFrame]:
-    """Carrega todos os CSVs e retorna um dicionário de DataFrames."""
+    """Load all CSVs and return a dictionary of DataFrames."""
     data = {
         "products": load_csv("products.csv"),
         "categories": load_csv("categories.csv"),
@@ -27,7 +27,7 @@ def load_all_data() -> dict[str, pd.DataFrame]:
         "promotions": load_csv("promotions.csv"),
     }
 
-    # Enriquecer products com nome da categoria
+    # Enrich products with the category name
     data["products"] = data["products"].merge(
         data["categories"][["category_id", "name"]],
         on="category_id",
@@ -35,14 +35,14 @@ def load_all_data() -> dict[str, pd.DataFrame]:
         suffixes=("", "_category"),
     )
 
-    # Enriquecer orders com nome do cliente
+    # Enrich orders with the customer name
     data["orders"] = data["orders"].merge(
         data["customers"][["customer_id", "name", "phone", "email"]],
         on="customer_id",
         how="left",
     )
 
-    # Enriquecer order_items com nome e preço do produto
+    # Enrich order_items with the product name and price
     data["order_items"] = data["order_items"].merge(
         data["products"][["product_id", "name", "price_brl"]],
         on="product_id",
@@ -53,7 +53,7 @@ def load_all_data() -> dict[str, pd.DataFrame]:
 
 
 def load_store_policies() -> str:
-    """Extrai o texto completo do PDF de políticas da loja."""
+    """Extract the full text from the store policies PDF."""
     pdf_path = os.path.join(DATA_DIR, "politicas_da_loja.pdf")
     reader = PdfReader(pdf_path)
     text_parts = []

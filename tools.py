@@ -1,6 +1,6 @@
 """
-Ferramentas (tools) do agente de atendimento do Empório da Música.
-Cada ferramenta encapsula uma consulta específica aos dados da loja.
+Tools for the Empório da Música customer service agent.
+Each tool encapsulates a specific query over the store's data.
 """
 
 import json
@@ -10,15 +10,15 @@ import pandas as pd
 from langchain_core.tools import tool
 from data_loader import load_all_data, load_store_policies
 
-# Carregar dados uma vez na inicialização
+# Load data once at startup
 DATA = load_all_data()
 STORE_POLICIES = load_store_policies()
 
 
 def _normalize(text) -> str:
-    """Normaliza texto para busca: minúsculas e sem acentos.
-    Permite que o cliente encontre produtos mesmo digitando sem acento
-    (ex: 'violao' casa com 'Violão'), como é comum no WhatsApp.
+    """Normalize text for search: lowercase and accent-free.
+    Lets customers find products even when typing without accents
+    (e.g. 'violao' matches 'Violão'), as is common on WhatsApp.
     """
     normalized = unicodedata.normalize("NFKD", str(text).lower())
     return "".join(c for c in normalized if not unicodedata.combining(c))
@@ -26,16 +26,16 @@ def _normalize(text) -> str:
 
 @tool
 def search_products(query: str) -> str:
-    """Busca produtos no catálogo da loja por nome, categoria ou descrição.
-    Use esta ferramenta quando o cliente perguntar sobre produtos disponíveis,
-    preços, especificações ou quiser recomendações de instrumentos.
-    O parâmetro query pode ser o nome do produto, categoria (ex: 'violão', 'guitarra',
-    'ukulele', 'teclado', 'bateria', 'baixo') ou característica (ex: 'nylon', 'elétrico').
+    """Search the store catalog for products by name, category, or description.
+    Use this tool when the customer asks about available products, prices,
+    specifications, or wants instrument recommendations.
+    The query parameter can be the product name, a category (e.g. 'violão', 'guitarra',
+    'ukulele', 'teclado', 'bateria', 'baixo') or a feature (e.g. 'nylon', 'elétrico').
     """
     df = DATA["products"]
     query_norm = _normalize(query)
 
-    # Buscar em nome, descrição e categoria (ignorando acentos e maiúsculas)
+    # Search in name, description, and category (ignoring accents and case)
     mask = (
         df["name"].map(_normalize).str.contains(query_norm, na=False, regex=False)
         | df["description"].map(_normalize).str.contains(query_norm, na=False, regex=False)
@@ -47,7 +47,7 @@ def search_products(query: str) -> str:
     if results.empty:
         return f"Nenhum produto encontrado para '{query}'. Tente buscar por categoria (violão, guitarra, baixo, bateria, teclado, ukulele) ou por características específicas."
 
-    # Limitar a 10 resultados mais relevantes
+    # Limit to the 10 most relevant results
     results = results.head(10)
 
     output = []
@@ -55,7 +55,7 @@ def search_products(query: str) -> str:
         stock_info = f"Em estoque: {row['stock_quantity']} unidades" if row["stock_quantity"] > 0 else "❌ FORA DE ESTOQUE"
         status_info = f" ({row['status']})" if row["status"] != "active" else ""
 
-        # Verificar promoção ativa
+        # Check for an active promotion
         promo = DATA["promotions"][
             (DATA["promotions"]["product_id"] == row["product_id"])
             & (DATA["promotions"]["is_active"] == 1)
@@ -88,9 +88,9 @@ def search_products(query: str) -> str:
 
 @tool
 def check_product_by_id(product_id: int) -> str:
-    """Busca um produto específico pelo ID.
-    Use quando o cliente já sabe o ID do produto ou quando precisa de detalhes
-    de um produto específico.
+    """Look up a specific product by ID.
+    Use when the customer already knows the product ID or needs details
+    about a specific product.
     """
     df = DATA["products"]
     product = df[df["product_id"] == product_id]
@@ -101,7 +101,7 @@ def check_product_by_id(product_id: int) -> str:
     row = product.iloc[0]
     stock_info = f"Em estoque: {row['stock_quantity']} unidades" if row["stock_quantity"] > 0 else "❌ FORA DE ESTOQUE"
 
-    # Verificar promoção ativa
+    # Check for an active promotion
     promo = DATA["promotions"][
         (DATA["promotions"]["product_id"] == product_id)
         & (DATA["promotions"]["is_active"] == 1)
@@ -126,9 +126,9 @@ def check_product_by_id(product_id: int) -> str:
 
 @tool
 def check_active_promotions() -> str:
-    """Lista todas as promoções ativas no momento.
-    Use quando o cliente perguntar sobre promoções, ofertas, descontos
-    ou quiser saber o que está em oferta.
+    """List all currently active promotions.
+    Use when the customer asks about promotions, offers, discounts,
+    or wants to know what is on sale.
     """
     promos = DATA["promotions"][DATA["promotions"]["is_active"] == 1]
 
@@ -154,19 +154,19 @@ def check_active_promotions() -> str:
 
 @tool
 def track_order(identifier: str) -> str:
-    """Rastreia um pedido pelo ID do pedido, código de rastreio, nome ou e-mail do cliente.
-    Use quando o cliente perguntar sobre o status do pedido, entrega,
-    rastreamento ou quiser saber onde está sua encomenda.
+    """Track an order by order ID, tracking code, customer name, or e-mail.
+    Use when the customer asks about order status, delivery, tracking,
+    or wants to know where their package is.
     """
     df = DATA["orders"]
     identifier_lower = identifier.lower().strip()
 
-    # Tentar buscar por order_id
+    # Try to look up by order_id
     try:
         order_id = int(identifier_lower)
         results = df[df["order_id"] == order_id]
     except ValueError:
-        # Buscar por tracking code, nome ou email (ignorando acentos e maiúsculas)
+        # Search by tracking code, name, or email (ignoring accents and case)
         query_norm = _normalize(identifier_lower)
         results = df[
             df["tracking_code"].map(_normalize).str.contains(query_norm, na=False, regex=False)
@@ -183,7 +183,7 @@ def track_order(identifier: str) -> str:
 
     output = []
     for _, order in results.iterrows():
-        # Buscar itens do pedido
+        # Fetch the order items
         items = DATA["order_items"][DATA["order_items"]["order_id"] == order["order_id"]]
         items_str = ", ".join(
             f"{row['name']} (x{row['quantity']})" for _, row in items.iterrows()
@@ -218,8 +218,8 @@ def track_order(identifier: str) -> str:
 
 @tool
 def lookup_customer(identifier: str) -> str:
-    """Busca informações de um cliente pelo nome, e-mail ou telefone.
-    Use quando precisar identificar um cliente ou verificar seus dados cadastrais.
+    """Look up a customer's information by name, e-mail, or phone.
+    Use when you need to identify a customer or verify their records.
     """
     df = DATA["customers"]
     query_norm = _normalize(identifier.strip())
@@ -235,7 +235,7 @@ def lookup_customer(identifier: str) -> str:
 
     output = []
     for _, customer in results.iterrows():
-        # Buscar pedidos do cliente
+        # Fetch the customer's orders
         orders = DATA["orders"][DATA["orders"]["customer_id"] == customer["customer_id"]]
         orders_info = f"{len(orders)} pedido(s)" if not orders.empty else "Nenhum pedido"
 
@@ -252,11 +252,11 @@ def lookup_customer(identifier: str) -> str:
 
 @tool
 def consult_store_policies(question: str) -> str:
-    """Consulta as políticas da loja para responder dúvidas sobre trocas, devoluções,
-    frete, formas de pagamento, horário de funcionamento, garantia, LGPD etc.
-    Use quando o cliente perguntar sobre regras da loja, prazos, condições de compra
-    ou qualquer política comercial.
-    O parâmetro question deve ser a pergunta ou tema específico.
+    """Consult the store policies to answer questions about exchanges, returns,
+    shipping, payment methods, business hours, warranty, LGPD (data privacy), etc.
+    Use when the customer asks about store rules, deadlines, purchase conditions,
+    or any commercial policy.
+    The question parameter should be the specific question or topic.
     """
     return (
         f"Pergunta do cliente: {question}\n\n"
@@ -268,7 +268,7 @@ def consult_store_policies(question: str) -> str:
     )
 
 
-# Lista de todas as ferramentas para o agente
+# List of all tools available to the agent
 ALL_TOOLS = [
     search_products,
     check_product_by_id,
