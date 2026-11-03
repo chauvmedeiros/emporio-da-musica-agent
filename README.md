@@ -203,14 +203,46 @@ Os exemplos completos estão na pasta `examples/`. Resumo dos cenários cobertos
 
 6. **Sem integração real com WhatsApp:** O agente simula o atendimento via CLI. A integração com WhatsApp Business API requer infraestrutura adicional (webhook, servidor, certificação Meta).
 
+## 🚀 O que Faria com Mais Tempo
+
+Se houvesse mais tempo disponível, o próximo passo natural seria evoluir este agente para uma **plataforma completa de atendimento ao cliente** — um sistema web onde os atendentes não precisariam usar o WhatsApp Web diretamente. A visão inclui:
+
+### Plataforma de Gestão de Atendimentos
+
+- **Painel web para atendentes:** Interface própria para gerenciar conversas sem depender do WhatsApp Web (que consome muita memória e limita o controle). Múltiplos atendentes poderiam acessar o sistema simultaneamente com suas próprias credenciais.
+
+- **Handoff inteligente IA ↔ Humano:** O atendente poderia, a qualquer momento, assumir uma conversa que a IA estava conduzindo ("stop IA → atendimento humano"), e depois devolver para a IA continuar. A IA também sinalizaria automaticamente quando detectasse que o cliente precisa de atendimento humano (reclamações, situações sensíveis, perguntas muito fora do escopo).
+
+- **Catálogo visual de produtos:** Galeria com fotos e vídeos dos instrumentos, integrada às ferramentas do agente para enviar mídia durante o atendimento.
+
+- **Relatórios e analytics:** Dashboard com métricas de atendimento — tempo médio de resposta, taxa de resolução por IA vs. humano, produtos mais consultados, horários de pico.
+
+- **Envio de mensagens em massa:** Campanhas segmentadas para clientes cadastrados (promoções, novidades, restock de produtos populares).
+
+- **CRM integrado:** Histórico completo de cada cliente — todas as conversas, compras, preferências — para atendimento personalizado e follow-up proativo.
+
+### Stack que Utilizaria
+
+Para essa evolução, a stack que escolheria com base na minha experiência:
+- **Frontend:** React/Next.js ou Lovable para prototipação rápida
+- **Backend:** Supabase (PostgreSQL + Auth + Realtime) para dados e autenticação em tempo real
+- **Automações:** n8n para orquestração de workflows (webhooks do WhatsApp, notificações, relatórios agendados)
+- **WhatsApp:** Integração via WhatsApp Business API oficial da Meta com webhook
+- **IA:** Mesmo agente LangChain, adaptado para processar mensagens do webhook e responder via API
+
+Essa visão reflete o tipo de sistema que já construo profissionalmente — agentes de IA integrados com WhatsApp Business API, dashboards de gestão e automações com n8n — e seria a evolução natural deste protótipo para um produto real.
+
 ## 🤖 Uso de IA no Desenvolvimento
 
-Este projeto foi desenvolvido com auxílio de **Claude (Anthropic)** como assistente de desenvolvimento. O assistente de IA foi utilizado para:
+Transparência é importante: este projeto foi desenvolvido em parceria com **Claude (Anthropic)**, utilizado como assistente de desenvolvimento ao longo de todo o processo. Especificamente, a IA auxiliou em:
 
-- Estruturação da arquitetura do projeto
-- Geração do código-base dos módulos
-- Elaboração do README e documentação
-- Revisão e refinamento das ferramentas do agente
-- Criação dos exemplos de interação
+- **Arquitetura:** Discussão e validação da estrutura do projeto, escolha de padrões (ReAct, tool calling) e definição do fluxo do agente
+- **Implementação:** Geração do código-base dos módulos, com iterações de refinamento
+- **Documentação:** Elaboração do README, exemplos de interação e justificativas técnicas
+- **Revisão:** Code review, identificação de edge cases e melhorias na robustez das ferramentas
 
-Todo o código foi revisado, compreendido e validado pela desenvolvedora. As decisões técnicas de arquitetura foram tomadas pela desenvolvedora com base na análise dos requisitos do desafio e na experiência com projetos similares de agentes de IA.
+**O que é meu neste projeto:**
+- As **decisões de arquitetura** foram baseadas na minha experiência construindo agentes de IA com LangChain, WhatsApp Business API e n8n profissionalmente
+- A **escolha do Gemini 2.0 Flash** como modelo, a abordagem de dados com Pandas (sem vector store para dados pequenos) e o design da persona "Mel" refletem decisões pragmáticas que tomo no dia a dia
+- A **visão de produto** (seção "O que faria com mais tempo") vem diretamente da minha atuação profissional com sistemas de atendimento via WhatsApp
+- Todo o código foi **revisado, compreendido e validado** — não aceitei output da IA sem entender o que cada parte faz e por quê
