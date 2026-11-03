@@ -67,7 +67,7 @@ python main.py
                        │
 ┌──────────────────────▼──────────────────────────┐
 │          ReAct Agent (LangChain)                 │
-│      Google Gemini 2.0 Flash + Tool Calling      │
+│      Google Gemini 3.5 Flash + Tool Calling      │
 └──────────┬───────┬───────┬───────┬──────────────┘
            │       │       │       │
      ┌─────▼──┐ ┌──▼───┐ ┌▼─────┐ ┌▼──────────┐
@@ -82,18 +82,18 @@ O agente utiliza a abordagem **ReAct** (Reasoning + Acting): a cada mensagem do 
 
 ### 1. Framework: LangChain com Tool Calling
 
-**Escolha:** LangChain (`create_tool_calling_agent`)
+**Escolha:** LangChain 1.x (`create_agent`)
 
-**Justificativa:** LangChain oferece uma abstração madura para construir agentes com ferramentas, com suporte nativo a tool calling (function calling) do Gemini. Isso permite que o modelo decida autonomamente quais ferramentas acionar com base na pergunta do cliente, sem necessidade de lógica condicional manual. A alternativa seria LangGraph para fluxos mais complexos com estados, mas para este caso de uso — um agente de atendimento com ferramentas de consulta — o `AgentExecutor` do LangChain é suficiente e mais simples.
+**Justificativa:** O `create_agent` do LangChain oferece uma abstração madura para construir agentes com ferramentas, com suporte nativo a tool calling (function calling) do Gemini. Isso permite que o modelo decida autonomamente quais ferramentas acionar com base na pergunta do cliente, sem necessidade de lógica condicional manual. Por baixo dos panos ele monta um agente ReAct sobre o LangGraph, o que mantém o código simples para este caso de uso (um agente de atendimento com ferramentas de consulta) e já deixa o caminho aberto para fluxos com estados mais complexos no futuro.
 
 **Alternativas consideradas:**
-- **LangGraph:** Mais poderoso para fluxos com múltiplos estados e roteamento condicional, mas adiciona complexidade desnecessária para este caso
+- **LangGraph "na mão":** Montar o grafo manualmente dá mais controle sobre estados e roteamento condicional, mas adiciona complexidade desnecessária para este caso
 - **Implementação manual com Gemini SDK:** Menor abstração, mais controle, mas requer reimplementar o loop ReAct e a gestão de ferramentas
 - **RAG puro:** Limitado para consultas estruturadas (CSV); melhor para documentos longos não estruturados
 
-### 2. Modelo: Google Gemini 2.0 Flash
+### 2. Modelo: Google Gemini 3.5 Flash
 
-**Escolha:** `gemini-2.0-flash` via Google AI Studio (tier gratuito)
+**Escolha:** `gemini-3.5-flash` via Google AI Studio (tier gratuito)
 
 **Justificativa:** Oferece excelente relação custo-performance para agentes conversacionais. Suporta tool calling nativo (fundamental para a abordagem ReAct), compreende bem português brasileiro, e o tier gratuito é suficiente para desenvolvimento e demonstração. A baixa latência do Flash é ideal para simulação de atendimento em tempo real.
 
@@ -107,12 +107,12 @@ O agente utiliza a abordagem **ReAct** (Reasoning + Acting): a cada mensagem do 
 **Escolha:** Agente ReAct com 6 ferramentas especializadas
 
 **Justificativa:** Cada ferramenta encapsula uma consulta específica aos dados da loja:
-- `search_products` — Busca por nome, categoria ou descrição
-- `check_product_by_id` — Detalhes de um produto específico
-- `check_active_promotions` — Lista promoções vigentes
-- `track_order` — Rastreamento por ID, código, nome ou e-mail
-- `lookup_customer` — Busca dados cadastrais do cliente
-- `consult_store_policies` — Consulta o PDF de políticas
+- `search_products` - Busca por nome, categoria ou descrição
+- `check_product_by_id` - Detalhes de um produto específico
+- `check_active_promotions` - Lista promoções vigentes
+- `track_order` - Rastreamento por ID, código, nome ou e-mail
+- `lookup_customer` - Busca dados cadastrais do cliente
+- `consult_store_policies` - Consulta o PDF de políticas
 
 Esta separação permite que o modelo decida quais fontes consultar com base no contexto, podendo combinar múltiplas ferramentas em uma única resposta (ex: buscar produto + verificar promoção).
 
@@ -183,11 +183,11 @@ emporio-da-musica-agent/
 
 Os exemplos completos estão na pasta `examples/`. Resumo dos cenários cobertos:
 
-1. **Busca e recomendação de produtos** — Cliente procurando um violão para iniciante
-2. **Rastreamento de pedido** — Cliente verificando status de entrega
-3. **Promoções ativas** — Cliente perguntando sobre ofertas e descontos
-4. **Políticas da loja** — Cliente com dúvidas sobre troca/devolução e frete
-5. **Fora do escopo** — Agente lidando com perguntas não relacionadas à loja
+1. **Busca e recomendação de produtos** - Cliente procurando um violão para iniciante
+2. **Rastreamento de pedido** - Cliente verificando status de entrega
+3. **Promoções ativas** - Cliente perguntando sobre ofertas e descontos
+4. **Políticas da loja** - Cliente com dúvidas sobre troca/devolução e frete
+5. **Fora do escopo** - Agente lidando com perguntas não relacionadas à loja
 
 ## ⚠️ Limitações Conhecidas
 
@@ -205,7 +205,7 @@ Os exemplos completos estão na pasta `examples/`. Resumo dos cenários cobertos
 
 ## 🚀 O que Faria com Mais Tempo
 
-Se houvesse mais tempo disponível, o próximo passo natural seria evoluir este agente para uma **plataforma completa de atendimento ao cliente** — um sistema web onde os atendentes não precisariam usar o WhatsApp Web diretamente. A visão inclui:
+Se houvesse mais tempo disponível, o próximo passo natural seria evoluir este agente para uma **plataforma completa de atendimento ao cliente** - um sistema web onde os atendentes não precisariam usar o WhatsApp Web diretamente. A visão inclui:
 
 ### Plataforma de Gestão de Atendimentos
 
@@ -215,11 +215,11 @@ Se houvesse mais tempo disponível, o próximo passo natural seria evoluir este 
 
 - **Catálogo visual de produtos:** Galeria com fotos e vídeos dos instrumentos, integrada às ferramentas do agente para enviar mídia durante o atendimento.
 
-- **Relatórios e analytics:** Dashboard com métricas de atendimento — tempo médio de resposta, taxa de resolução por IA vs. humano, produtos mais consultados, horários de pico.
+- **Relatórios e analytics:** Dashboard com métricas de atendimento - tempo médio de resposta, taxa de resolução por IA vs. humano, produtos mais consultados, horários de pico.
 
 - **Envio de mensagens em massa:** Campanhas segmentadas para clientes cadastrados (promoções, novidades, restock de produtos populares).
 
-- **CRM integrado:** Histórico completo de cada cliente — todas as conversas, compras, preferências — para atendimento personalizado e follow-up proativo.
+- **CRM integrado:** Histórico completo de cada cliente - todas as conversas, compras, preferências - para atendimento personalizado e follow-up proativo.
 
 ### Stack que Utilizaria
 
@@ -230,7 +230,7 @@ Para essa evolução, a stack que escolheria com base na minha experiência:
 - **WhatsApp:** Integração via WhatsApp Business API oficial da Meta com webhook
 - **IA:** Mesmo agente LangChain, adaptado para processar mensagens do webhook e responder via API
 
-Essa visão reflete o tipo de sistema que já construo profissionalmente — agentes de IA integrados com WhatsApp Business API, dashboards de gestão e automações com n8n — e seria a evolução natural deste protótipo para um produto real.
+Essa visão reflete o tipo de sistema que já construo profissionalmente - agentes de IA integrados com WhatsApp Business API, dashboards de gestão e automações com n8n - e seria a evolução natural deste protótipo para um produto real.
 
 ## 🤖 Uso de IA no Desenvolvimento
 
@@ -243,6 +243,6 @@ Transparência é importante: este projeto foi desenvolvido em parceria com **Cl
 
 **O que é meu neste projeto:**
 - As **decisões de arquitetura** foram baseadas na minha experiência construindo agentes de IA com LangChain, WhatsApp Business API e n8n profissionalmente
-- A **escolha do Gemini 2.0 Flash** como modelo, a abordagem de dados com Pandas (sem vector store para dados pequenos) e o design da persona "Mel" refletem decisões pragmáticas que tomo no dia a dia
+- A **escolha do Gemini 3.5 Flash** como modelo, a abordagem de dados com Pandas (sem vector store para dados pequenos) e o design da persona "Mel" refletem decisões pragmáticas que tomo no dia a dia
 - A **visão de produto** (seção "O que faria com mais tempo") vem diretamente da minha atuação profissional com sistemas de atendimento via WhatsApp
-- Todo o código foi **revisado, compreendido e validado** — não aceitei output da IA sem entender o que cada parte faz e por quê
+- Todo o código foi **revisado, compreendido e validado** - não aceitei output da IA sem entender o que cada parte faz e por quê
