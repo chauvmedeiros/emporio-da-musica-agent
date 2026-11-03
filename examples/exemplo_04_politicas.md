@@ -1,4 +1,4 @@
-# Exemplo 4 — Políticas da Loja
+# Exemplo 4 - Políticas da Loja
 
 Cenário: Cliente com dúvidas sobre trocas, devoluções e frete.
 
@@ -34,7 +34,7 @@ Quer saber mais alguma coisa sobre a devolução?
 - **Garantia legal:** 90 dias (obrigatória por lei)
 - **Garantia do fabricante:** 6 meses a 2 anos, dependendo do instrumento
 
-Para qualquer problema, é só chamar no WhatsApp **(67) 3321-4500** — respondemos em até 5 minutinhos! ⏱️
+Para qualquer problema, é só chamar no WhatsApp **(67) 3321-4500** - respondemos em até 5 minutinhos! ⏱️
 
 ---
 
@@ -47,6 +47,6 @@ Para qualquer problema, é só chamar no WhatsApp **(67) 3321-4500** — respond
 
 ⚠️ O **frete grátis** é apenas para a **região metropolitana de Campo Grande** em compras acima de R$ 500.
 
-O prazo varia conforme a transportadora — geralmente entre 3 a 7 dias úteis para cidades do MS.
+O prazo varia conforme a transportadora - geralmente entre 3 a 7 dias úteis para cidades do MS.
 
 Posso ajudar com mais alguma coisa? 😊

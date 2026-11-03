@@ -1,4 +1,4 @@
-# Exemplo 5 — Perguntas Fora do Escopo
+# Exemplo 5 - Perguntas Fora do Escopo
 
 Cenário: Agente lidando com perguntas não relacionadas à loja.
 
@@ -36,19 +36,19 @@ Que tal trocar o bolo por um instrumento? 🎵 Posso te mostrar nossas promoçõ
 
 Aqui estão nossas guitarras:
 
-1. 🎸 **Fender Telecaster Player Series** — R$ 5.400,00
+1. 🎸 **Fender Telecaster Player Series** - R$ 5.400,00
    Autêntico "twang" da Fender, 2 captadores Alnico 5 (15 em estoque)
 
-2. 🎸 **PRS SE Custom 24** — R$ 6.800,00
+2. 🎸 **PRS SE Custom 24** - R$ 6.800,00
    Super versátil, 24 trastes, split de bobina (12 em estoque)
 
-3. 🎸 **Ibanez RG550 Genesis** — R$ 7.500,00
+3. 🎸 **Ibanez RG550 Genesis** - R$ 7.500,00
    Braço super rápido, ideal pra shred e metal (8 em estoque)
 
-4. 🎸 **Fender Stratocaster American Pro II** — R$ 12.500,00
+4. 🎸 **Fender Stratocaster American Pro II** - R$ 12.500,00
    Clássica Strat com captadores V-Mod II (5 em estoque)
 
-5. 🎸 **Gibson Les Paul Standard '50s** — R$ 18.900,00
+5. 🎸 **Gibson Les Paul Standard '50s** - R$ 18.900,00
    Lendária! Captadores Burstbucker, sustain infinito (2 em estoque)
 
 Qual estilo de música você toca? Posso recomendar a melhor opção! 😊

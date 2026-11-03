@@ -1,4 +1,4 @@
-# Exemplo 1 — Busca e Recomendação de Produtos
+# Exemplo 1 - Busca e Recomendação de Produtos
 
 Cenário: Cliente iniciante buscando um violão para começar a aprender.
 
@@ -9,14 +9,14 @@ Cenário: Cliente iniciante buscando um violão para começar a aprender.
 **🎵 Mel:** Boa tarde! 😊 Que legal que você quer começar a tocar! Temos ótimas opções pra quem está começando:
 
 **Violões de Nylon (ideais para iniciantes):**
-- 🎸 **Tagima Memphis AC-39** — R$ 429,90 (15 em estoque)
+- 🎸 **Tagima Memphis AC-39** - R$ 429,90 (15 em estoque)
   Corpo leve e confortável, perfeito para quem está começando
-- 🎸 **Rozini RC-104 Estudante** — R$ 459,90 (10 em estoque)
+- 🎸 **Rozini RC-104 Estudante** - R$ 459,90 (10 em estoque)
   Feito com madeiras nacionais, acabamento caprichado
-- 🎸 **Yamaha C40** — R$ 599,90 (12 em estoque)
+- 🎸 **Yamaha C40** - R$ 599,90 (12 em estoque)
   Clássico! Excelente projeção sonora, ideal para estudantes
 
-Pra quem tá começando, eu recomendo cordas de nylon — são mais macias nos dedos! 😉
+Pra quem tá começando, eu recomendo cordas de nylon - são mais macias nos dedos! 😉
 
 Quer saber mais sobre algum desses? Ou prefere ver as opções de violão com cordas de aço?
 

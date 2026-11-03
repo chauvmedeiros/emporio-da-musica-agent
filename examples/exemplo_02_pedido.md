@@ -1,4 +1,4 @@
-# Exemplo 2 — Rastreamento de Pedido
+# Exemplo 2 - Rastreamento de Pedido
 
 Cenário: Cliente quer saber o status de seu pedido.
 
