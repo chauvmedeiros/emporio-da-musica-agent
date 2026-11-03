@@ -7,10 +7,11 @@
 
 Intelligent conversational agent for the customer service of **Empório da Música**, a musical instrument store located in Campo Grande/MS, Brazil. The agent simulates a WhatsApp-style service channel, answering questions about products, orders, promotions, and store policies.
 
-> **Note on language:** The documentation and code comments are in English, but the agent itself talks to customers in **Brazilian Portuguese** on purpose — it serves a Brazilian store, so the persona, the chat dialogues in `examples/`, and the data remain in Portuguese.
+> **Note on language:** The documentation and code comments are in English, but the agent itself talks to customers in **Brazilian Portuguese** on purpose - it serves a Brazilian store, so the persona, the chat dialogues in `examples/`, and the data remain in Portuguese.
 
 ## 📋 Table of Contents
 
+- [Demo](#-demo)
 - [How to Run](#-how-to-run)
 - [Architecture](#-architecture)
 - [Technical Decisions](#-technical-decisions)
@@ -18,6 +19,14 @@ Intelligent conversational agent for the customer service of **Empório da Músi
 - [Interaction Examples](#-interaction-examples)
 - [Known Limitations](#-known-limitations)
 - [AI Usage in Development](#-ai-usage-in-development)
+
+## 🎬 Demo
+
+A real `python main.py` session: Mel helps a beginner choose a guitar, then explains the PIX payment discount - always grounding her answers in the store's actual catalog and prices.
+
+![Mel recommending beginner guitars](docs/demo-recommendation.png)
+
+![Mel explaining the PIX discount](docs/demo-pix-discount.png)
 
 ## 🚀 How to Run
 
