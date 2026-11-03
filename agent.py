@@ -4,9 +4,8 @@ Utiliza LangChain + Google Gemini com abordagem ReAct Agent.
 """
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage
 from tools import ALL_TOOLS
 
 SYSTEM_PROMPT = """Você é a Mel 🎵, assistente virtual do Empório da Música, uma loja de instrumentos musicais localizada em Campo Grande/MS.
@@ -50,50 +49,58 @@ Se o cliente perguntar sobre assuntos que não são relacionados à loja ou a in
 """
 
 
-def create_agent(model_name: str = "gemini-2.0-flash") -> AgentExecutor:
-    """Cria e retorna o agente configurado."""
+def _extract_text(message) -> str:
+    """Extrai o texto da resposta do agente.
+    Modelos Gemini 3.x retornam o conteúdo como lista de blocos (texto +
+    raciocínio); aqui pegamos apenas os blocos de texto voltados ao cliente.
+    """
+    content = message.content
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict) and block.get("type") == "text":
+                parts.append(block.get("text", ""))
+        return "".join(parts).strip()
+    return str(content)
+
+
+def create_agent_executor(model_name: str = "gemini-3.5-flash"):
+    """Cria e retorna o agente configurado (grafo ReAct do LangChain)."""
     llm = ChatGoogleGenerativeAI(
         model=model_name,
         temperature=0.3,
+        timeout=30,       # evita travar indefinidamente se a API demorar
+        max_retries=2,    # limita retentativas quando a API está sobrecarregada (503)
     )
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
-    ])
-
-    agent = create_tool_calling_agent(llm, ALL_TOOLS, prompt)
-
-    return AgentExecutor(
-        agent=agent,
+    return create_agent(
+        llm,
         tools=ALL_TOOLS,
-        verbose=False,
-        handle_parsing_errors=True,
-        max_iterations=5,
+        system_prompt=SYSTEM_PROMPT,
     )
 
 
 class ChatSession:
     """Gerencia uma sessão de chat com histórico de conversação."""
 
-    def __init__(self, model_name: str = "gemini-2.0-flash"):
-        self.agent = create_agent(model_name)
+    def __init__(self, model_name: str = "gemini-3.5-flash"):
+        self.agent = create_agent_executor(model_name)
         self.chat_history: list = []
 
     def send_message(self, message: str) -> str:
         """Envia uma mensagem e retorna a resposta do agente."""
-        response = self.agent.invoke({
-            "input": message,
-            "chat_history": self.chat_history,
-        })
+        messages = self.chat_history + [HumanMessage(content=message)]
+        result = self.agent.invoke({"messages": messages})
 
-        # Atualizar histórico
-        self.chat_history.append(HumanMessage(content=message))
-        self.chat_history.append(AIMessage(content=response["output"]))
+        # Mantém o histórico completo (incluindo chamadas de ferramenta),
+        # necessário para o tool calling multi-turno dos modelos Gemini 3.x
+        self.chat_history = result["messages"]
 
-        return response["output"]
+        return _extract_text(result["messages"][-1])
 
     def reset(self):
         """Limpa o histórico da conversa."""
