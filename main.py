@@ -7,6 +7,13 @@ import os
 import sys
 from dotenv import load_dotenv
 
+# Garantir saída UTF-8 no terminal (Windows usa cp1252 por padrão e quebra com emojis)
+for stream in (sys.stdout, sys.stderr):
+    try:
+        stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 # Carregar variáveis de ambiente
 load_dotenv()
 
